@@ -1,0 +1,144 @@
+<div th:fragment="content">
+    <div class="card">
+        <div class="card-body">
+            <h2 class="card-title">Historique des Modifications de Salaire (Accès Direct BDD)</h2>
+
+            <form method="get" class="mb-3" style="display: flex; gap: 10px; align-items: center;">
+                <select name="year" class="form-control" style="width: 150px;">
+                    <option th:each="year : ${#numbers.sequence(2024, 2026)}" 
+                            th:value="${year}" 
+                            th:text="${year}"
+                            th:selected="${year == selectedYear}">
+                    </option>
+                </select>
+                
+                <select name="month" class="form-control" style="width: 200px;">
+                    <option value="">-- Tous les mois --</option>
+                    <option value="1" th:selected="${selectedMonth == 1}">Janvier</option>
+                    <option value="2" th:selected="${selectedMonth == 2}">Février</option>
+                    <option value="3" th:selected="${selectedMonth == 3}">Mars</option>
+                    <option value="4" th:selected="${selectedMonth == 4}">Avril</option>
+                    <option value="5" th:selected="${selectedMonth == 5}">Mai</option>
+                    <option value="6" th:selected="${selectedMonth == 6}">Juin</option>
+                    <option value="7" th:selected="${selectedMonth == 7}">Juillet</option>
+                    <option value="8" th:selected="${selectedMonth == 8}">Août</option>
+                    <option value="9" th:selected="${selectedMonth == 9}">Septembre</option>
+                    <option value="10" th:selected="${selectedMonth == 10}">Octobre</option>
+                    <option value="11" th:selected="${selectedMonth == 11}">Novembre</option>
+                    <option value="12" th:selected="${selectedMonth == 12}">Décembre</option>
+                </select>
+                
+                <button type="submit" class="btn-search">Filtrer</button>
+            </form>
+
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card bg-primary text-white">
+                        <div class="card-body text-center">
+                            <h6>Total Modifications</h6>
+                            <h3 th:text="${stats.total_modifications ?: 0}">0</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-info text-white">
+                        <div class="card-body text-center">
+                            <h6>Employés Affectés</h6>
+                            <h3 th:text="${stats.employees_affected ?: 0}">0</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-success text-white">
+                        <div class="card-body text-center">
+                            <h6>Salaire Moyen</h6>
+                            <h3 th:text="${#numbers.formatDecimal(stats.average_salary ?: 0, 1, 'POINT', 0, 'COMMA')}">0</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-warning text-white">
+                        <div class="card-body text-center">
+                            <h6>Total Salaires</h6>
+                            <h3 th:text="${#numbers.formatDecimal(stats.total_salary ?: 0, 1, 'POINT', 0, 'COMMA')}">0</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mb-4" th:if="${!monthlyData.isEmpty()}">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h6>Répartition Mensuelle</h6>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Mois</th>
+                                        <th>Modifications</th>
+                                        <th>Employés</th>
+                                        <th>Salaire Moyen</th>
+                                        <th>Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="month : ${monthlyData}">
+                                        <td>
+                                            <a th:href="@{/db/salary-history(year=${selectedYear}, month=${month.month_num})}"
+                                               th:text="${month.month_name}"
+                                               class="text-decoration-none">
+                                            </a>
+                                        </td>
+                                        <td th:text="${month.modifications_count}"></td>
+                                        <td th:text="${month.employees_count}"></td>
+                                        <td th:text="${#numbers.formatDecimal(month.avg_salary, 1, 'POINT', 0, 'COMMA')}"></td>
+                                        <td th:text="${#numbers.formatDecimal(month.total_salary, 1, 'POINT', 0, 'COMMA')}"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h6>Détail des Modifications</h6>
+                </div>
+                <div class="card-body">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Code Employé</th>
+                                <th>Nom</th>
+                                <th>Salaire Base</th>
+                                <th>Date Application</th>
+                                <th>Date Création</th>
+                                <th>Entreprise</th>
+                                <th>Structure</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="mod : ${modifications}">
+                                <td th:text="${mod.employee}"></td>
+                                <td th:text="${mod.first_name + ' ' + mod.last_name}"></td>
+                                <td th:text="${#numbers.formatDecimal(mod.base, 1, 'POINT', 2, 'COMMA')} + ' €'"></td>
+                                <td th:text="${#temporals.format(mod.from_date, 'dd/MM/yyyy')}"></td>
+                                <td th:text="${#temporals.format(mod.creation, 'dd/MM/yyyy HH:mm')}"></td>
+                                <td th:text="${mod.company}"></td>
+                                <td th:text="${mod.salary_structure}"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <div th:if="${modifications.isEmpty()}" class="text-center py-4">
+                        <i class="fas fa-info-circle text-muted"></i>
+                        <p class="text-muted mb-0">Aucune modification trouvée pour cette période</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

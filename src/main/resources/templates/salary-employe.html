@@ -1,0 +1,104 @@
+<div th:fragment="content">
+    <div class="card">
+        <div class="card-body">
+            <h2 class="card-title">Filtrage des employe</h2>
+
+            <form th:action="@{/salary-employe}" method="get" class="mb-3"
+                style="display: flex; gap: 10px; align-items: center;">
+                <input type="month" name="monthYear" th:value="${selectedMonth}" class="form-control"
+                    style="width: 200px;" />
+                <button type="submit" class="btn-search">Filtrer</button>
+            </form>
+
+            <div th:if="${errorMessage}" class="alert alert-danger" style="margin-bottom: 20px;">
+                <p th:text="${errorMessage}"></p>
+            </div>
+
+            <!-- Tableau des bulletins de salaire -->
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Employé</th>
+                        <th>Reference</th>
+                        <th>Nom</th>
+                        <th>Date début</th>
+                        <th>Date fin</th>
+                        <th>Brut</th>
+                        <th>Net</th>
+                        <th>Deduction</th>
+                        <th>Earning</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="slip : ${salarySlips}">
+                        <td th:text="${slip.employee}">EMP001</td>
+                        <td th:text="${slip.name}">slap slip</td>
+                        <td th:text="${slip.employee_name}">John Doe</td>
+                        <td th:text="${slip.start_date}">2025-01-01</td>
+                        <td th:text="${slip.end_date}">2025-01-31</td>
+                        <td th:text="${#numbers.formatDecimal(slip.gross_pay, 1, 'POINT', 2, 'COMMA')}">0,00</td>
+                        <td th:text="${#numbers.formatDecimal(slip.net_pay, 1, 'POINT', 2, 'COMMA')}">0,00</td>
+                        <td th:text="${#numbers.formatDecimal(slip.total_deduction, 1, 'POINT', 2, 'COMMA')}">0,00</td>
+                        <td th:text="${#numbers.formatDecimal(slip.gross_pay, 1, 'POINT', 2, 'COMMA')}">0,00</td>
+                        <td class="text-center align-middle">
+                            <a href="#" class="view-details-link" th:attr="data-name=${slip.name}" title="Voir détails">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <a th:href="@{/salary/delete(name=${slip.name})}"
+                                class="delete-salaire-link"
+                                title="Supprimer"
+                                onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce salaire ?');">
+                                <i class="fas fa-trash-alt red-icon"></i>
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th colspan="4">Total</th>
+                        <th th:text="${#numbers.formatDecimal(totalGrossPay, 1, 'POINT', 2,'COMMA')}">0.00</th>
+                        <th th:text="${#numbers.formatDecimal(totalNetPay, 1, 'POINT', 2,'COMMA')}">0.00</th>
+                    </tr>
+                </tfoot>
+            </table>
+
+            <nav th:if="${totalPages > 1}">
+                <ul class="pagination">
+                    <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
+                        <a class="page-link"
+                            th:href="@{/salary-employe(page=${currentPage - 1}, monthYear=${selectedMonth})}">Précédent</a>
+                    </li>
+                    <li class="page-item" th:each="i : ${#numbers.sequence(1, totalPages)}"
+                        th:classappend="${i == currentPage} ? 'active'">
+                        <a class="page-link" th:href="@{/salary-employe(page=${i}, monthYear=${selectedMonth})}"
+                            th:text="${i}">1</a>
+                    </li>
+                    <li class="page-item" th:classappend="${currentPage == totalPages} ? 'disabled'">
+                        <a class="page-link"
+                            th:href="@{/salary-employe(page=${currentPage + 1}, monthYear=${selectedMonth})}">Suivant</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+
+    <div id="detailsModal" class="modal">
+        <div class="modal-content">
+            <span id="closeModal">&times;</span>
+            <h2>Détails du Bulletin</h2>
+
+            <p><strong>Nom de l'employé :</strong> <span id="modalSlipName"></span></p>
+            <p><strong>Salaire Brut :</strong> <span id="modalGrossPay"></span></p>
+            <p><strong>Salaire Net :</strong> <span id="modalNetPay"></span></p>
+
+            <hr>
+
+            <h3>Éléments de salaire</h3>
+            <ul id="modalEarningsList"></ul>
+
+            <h3>Déductions</h3>
+            <ul id="modalDeductionsList"></ul>
+        </div>
+    </div>
+</div>

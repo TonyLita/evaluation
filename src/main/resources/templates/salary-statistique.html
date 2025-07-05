@@ -1,0 +1,78 @@
+<div th:fragment="content">
+    <div class="card">
+        <div class="card-body">
+            <h2 class="card-title">Résumé Mensuel des Salaires</h2>
+
+            <form th:action="@{/salary-statistiques}" method="get" class="mb-3"
+                style="display: flex; gap: 10px; align-items: center;">
+                <select name="year" class="form-control" style="width: 200px;">
+                    <option value="" disabled selected>-- Sélectionnez une année --</option>
+                    <option th:each="year : ${#numbers.sequence(2024, 2026)}" th:value="${year}" th:text="${year}"
+                        th:selected="${year == selectedYear}">
+                        2025
+                    </option>
+                </select>
+                <button type="submit" class="btn-search">Filtrer</button>
+            </form>
+
+
+            <table class="table table-striped">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>Mois</th>
+                        <th>Total Brut</th>
+                        <th>Total Net</th>
+                        <th>Total Earning</th>
+                        <th>Total Deduction</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="entry : ${monthlyTotals}">
+                        <td class="month-cell" th:text="${entry.key}">2025-01</td>
+                        <td th:text="${#numbers.formatDecimal(entry.value['brut'], 1, 'COMMA', 2, 'POINT')}">0,00</td>
+                        <td th:text="${#numbers.formatDecimal(entry.value['net'], 1, 'COMMA', 2, 'POINT')}">0,00</td>
+                        <td th:text="${#numbers.formatDecimal(entry.value['brut'], 1, 'COMMA', 2, 'POINT')}">0,00</td>
+                        <td th:text="${#numbers.formatDecimal(entry.value['deduction'], 1, 'COMMA', 2, 'POINT')}">0,00</td>
+                        <td>
+                            <a href="#" class="view-details-links" title="Voir détails">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th>Total général</th>
+                        <th th:text="${#numbers.formatDecimal(totalBrutAll, 1, 'COMMA', 2, 'POINT')}">0,00</th>
+                        <th th:text="${#numbers.formatDecimal(totalNetAll, 1, 'COMMA', 2, 'POINT')}">0,00</th>
+                        <th th:text="${#numbers.formatDecimal(totalBrutAll, 1, 'COMMA', 2, 'POINT')}">0,00</th>
+                        <th th:text="${#numbers.formatDecimal(totalDeductionAll, 1, 'COMMA', 2, 'POINT')}">0,00</th>
+                        <th></th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        <div class="charts-row">
+            <div class="chart-container">
+                <h3>Évolution des Salaires Nets par Mois</h3>
+                <canvas id="salaryNetChart"></canvas>
+            </div>
+
+            <div class="chart-container">
+                <h3>Éléments de Salaire par Mois</h3>
+                <canvas id="salaryComponentsChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        const labels = [[${ monthlyTotals.keySet() }]];
+        const brutData = [[${ monthlyTotals.values().![get('brut')] }]];
+        const netData = [[${ monthlyTotals.values().![get('net')] }]];
+        const earningData = [[${ monthlyTotals.values().![get('brut')] }]];
+        const deductionData = [[${ monthlyTotals.values().![get('deduction')] }]];
+    </script>
+
+</div>

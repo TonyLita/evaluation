@@ -1,0 +1,56 @@
+<div th:fragment="content">
+    <div class="card">
+        <div class="card-body">
+            <h2 class="card-title">Importer des fichiers</h2>
+            <form th:action="@{/import}" method="post" enctype="multipart/form-data">
+                <div class="input-group">
+                    <label for="file1">Fichier 1</label>
+                    <input type="file" id="file1" name="file1" required />
+                </div>
+
+                <div class="input-group">
+                    <label for="file2">Fichier 2</label>
+                    <input type="file" id="file2" name="file2" required />
+                </div>
+
+                <div class="input-group">
+                    <label for="file3">Fichier 3</label>
+                    <input type="file" id="file3" name="file3" required />
+                </div>
+
+                <button type="submit" class="btn-import">Importer</button>
+            </form>
+
+           <div th:if="${successMessages != null and !successMessages.isEmpty()}">
+                <ul>
+                    <li th:each="msg : ${successMessages}" th:text="${msg}" style="color: green;"></li>
+                </ul>
+            </div>
+
+            <div th:if="${errorMessages != null and !errorMessages.isEmpty()}">
+                <ul>
+                    <li th:each="err : ${errorMessages}" th:text="${err}" style="color: red;"></li>
+                </ul>
+            </div>
+
+            <button id="btnDeleteEmployees" class="btn-delete" type="button">Supprimer tous les données</button>
+            <script th:inline="javascript">
+    const deleteUrl = /*[[@{/deleteAllEmployees}]]*/ '/deleteAllEmployees';
+    document.getElementById('btnDeleteEmployees').addEventListener('click', function() {
+        if(confirm("Êtes-vous sûr de vouloir supprimer tous les employés ?")) {
+            fetch(deleteUrl, { method: 'POST' })
+            .then(response => {
+                if(response.ok) {
+                    alert('Tous les donnee ont été supprimés.');
+                } else {
+                    alert('Erreur lors de la suppression.');
+                }
+            })
+            .catch(() => alert('Erreur réseau lors de la suppression.'));
+        }
+    });
+</script>
+
+        </div>
+    </div>
+</div>
