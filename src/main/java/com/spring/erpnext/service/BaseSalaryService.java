@@ -16,6 +16,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spring.erpnext.model.BaseSalary;
+import com.spring.erpnext.service.db.SalaryPercentageService;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -28,7 +29,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
 @Service
 public class BaseSalaryService {
 
@@ -38,6 +38,9 @@ public class BaseSalaryService {
     private RestTemplate restTemplate;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
+
+    @Autowired
+    private SalaryPercentageService salaryPercentageService;
 
     public boolean insertBaseSalary(BaseSalary baseSalary, HttpSession session) {
         String sid = (String) session.getAttribute("sid");
@@ -676,7 +679,19 @@ public class BaseSalaryService {
 
                 System.out.println("📅 Création pour : " + moisDebut.getMonth() + " " + moisDebut.getYear());
 
-                creerSSA(employeRef, company, salaryStructure, montant, moisDebut, headers);
+                // 🔧 NOUVEAU : Récupérer le pourcentage pour ce mois
+                double percentage = salaryPercentageService.getPercentageForMonth(
+                    moisDebut.getYear(), 
+                    moisDebut.getMonthValue()
+                );
+                
+                double montantFinal = montant;
+                if (percentage != 0.0) {
+                    montantFinal = montant + (montant * percentage / 100);
+                    System.out.println("💰 Pourcentage appliqué: " + percentage + "% - Montant: " + montant + " → " + montantFinal);
+                }
+
+                creerSSA(employeRef, company, salaryStructure, montantFinal, moisDebut, headers);
                 creerSalarySlip(employeRef, company, salaryStructure, moisDebut, moisFin, headers);
 
                 start = start.plusMonths(1);

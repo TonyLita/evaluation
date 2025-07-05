@@ -90,11 +90,14 @@
                 <li class="nav-item">
                     <a class="nav-link" th:href="@{/db/salary-history}">Historique Salaires</a>
                 </li>
+                <li class="nav-item">
+    <a class="nav-link" th:href="@{/db/salary-percentage}">Pourcentages</a>
+</li>
             </ul>
         </div>
 
         <main>
-            <div th:replace="${page} :: content"></div>
+            <div th:replace="~{${page} :: content}"></div>
         </main>
     </div>
 

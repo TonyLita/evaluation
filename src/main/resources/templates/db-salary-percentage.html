@@ -1,0 +1,378 @@
+<div th:fragment="content">
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                
+                <div class="header-section mb-4">
+                    <h1 class="page-title">Gestion des Pourcentages</h1>
+                    <p class="page-subtitle">Configuration des ajustements salariaux par mois et année</p>
+                </div>
+
+                <div th:if="${message}" class="alert alert-success alert-minimal" th:text="${message}"></div>
+                <div th:if="${error}" class="alert alert-danger alert-minimal" th:text="${error}"></div>
+
+                <div class="form-card">
+                    <h3 class="form-title">Nouveau Pourcentage</h3>
+                    <form th:action="@{/db/salary-percentage}" method="post">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="description">Description</label>
+                                <input type="text" id="description" name="description" 
+                                       placeholder="Ex: Augmentation 2025" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="percentage">Pourcentage (%)</label>
+                                <input type="number" id="percentage" name="percentage" 
+                                       step="0.01" placeholder="Ex: 5.5 ou -2.5" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="annee">Année</label>
+                                <select id="annee" name="annee" required>
+                                    <option value="">Sélectionner</option>
+                                    <option th:each="year : ${#numbers.sequence(2024, 2030)}" 
+                                            th:value="${year}" th:text="${year}">
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="months-section">
+                            <label class="months-label">Mois concernés</label>
+                            <div class="months-grid">
+                                <div class="month-item">
+                                    <input type="checkbox" name="moisAffectes" value="1" id="mois1">
+                                    <label for="mois1">Jan</label>
+                                </div>
+                                <div class="month-item">
+                                    <input type="checkbox" name="moisAffectes" value="2" id="mois2">
+                                    <label for="mois2">Fév</label>
+                                </div>
+                                <div class="month-item">
+                                    <input type="checkbox" name="moisAffectes" value="3" id="mois3">
+                                    <label for="mois3">Mar</label>
+                                </div>
+                                <div class="month-item">
+                                    <input type="checkbox" name="moisAffectes" value="4" id="mois4">
+                                    <label for="mois4">Avr</label>
+                                </div>
+                                <div class="month-item">
+                                    <input type="checkbox" name="moisAffectes" value="5" id="mois5">
+                                    <label for="mois5">Mai</label>
+                                </div>
+                                <div class="month-item">
+                                    <input type="checkbox" name="moisAffectes" value="6" id="mois6">
+                                    <label for="mois6">Jun</label>
+                                </div>
+                                <div class="month-item">
+                                    <input type="checkbox" name="moisAffectes" value="7" id="mois7">
+                                    <label for="mois7">Jul</label>
+                                </div>
+                                <div class="month-item">
+                                    <input type="checkbox" name="moisAffectes" value="8" id="mois8">
+                                    <label for="mois8">Aoû</label>
+                                </div>
+                                <div class="month-item">
+                                    <input type="checkbox" name="moisAffectes" value="9" id="mois9">
+                                    <label for="mois9">Sep</label>
+                                </div>
+                                <div class="month-item">
+                                    <input type="checkbox" name="moisAffectes" value="10" id="mois10">
+                                    <label for="mois10">Oct</label>
+                                </div>
+                                <div class="month-item">
+                                    <input type="checkbox" name="moisAffectes" value="11" id="mois11">
+                                    <label for="mois11">Nov</label>
+                                </div>
+                                <div class="month-item">
+                                    <input type="checkbox" name="moisAffectes" value="12" id="mois12">
+                                    <label for="mois12">Déc</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn-primary">Ajouter</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="table-card">
+                    <h3 class="table-title">Pourcentages configurés</h3>
+                    
+                    <div th:if="${!percentages.isEmpty()}" class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Description</th>
+                                    <th>Pourcentage</th>
+                                    <th>Année</th>
+                                    <th>Mois</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="perc : ${percentages}">
+                                    <td th:text="${perc.description}"></td>
+                                    <td class="percentage-cell">
+                                        <span th:text="${perc.percentage > 0 ? '+' + perc.percentage + '%' : perc.percentage + '%'}"
+                                              th:class="${perc.percentage > 0 ? 'positive' : 'negative'}">
+                                        </span>
+                                    </td>
+                                    <td th:text="${perc.annee}"></td>
+                                    <td class="months-cell" th:text="${perc.mois_display}"></td>
+                                    <td>
+                                        <a th:href="@{/db/salary-percentage/delete/{id}(id=${perc.id})}" 
+                                           class="btn-delete"
+                                           onclick="return confirm('Supprimer ce pourcentage ?')">
+                                            Supprimer
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div th:if="${percentages.isEmpty()}" class="empty-state">
+                        <div class="empty-icon">📊</div>
+                        <p>Aucun pourcentage configuré</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .header-section {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-subtitle {
+            color: #666;
+            font-size: 0.95rem;
+            margin: 0;
+        }
+
+        .alert-minimal {
+            border: none;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+        }
+
+        .form-card, .table-card {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid #f0f0f0;
+        }
+
+        .form-title, .table-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 1.25rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #f8f9fa;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #4a5568;
+            margin-bottom: 0.4rem;
+        }
+
+        .form-group input, .form-group select {
+            padding: 0.6rem 0.75rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+            background: #fff;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #3182ce;
+            box-shadow: 0 0 0 2px rgba(49, 130, 206, 0.1);
+        }
+
+        .months-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .months-label {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #4a5568;
+            margin-bottom: 0.75rem;
+            display: block;
+        }
+
+        .months-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 0.5rem;
+        }
+
+        .month-item {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .month-item:hover {
+            background-color: #f7fafc;
+            border-color: #cbd5e0;
+        }
+
+        .month-item input[type="checkbox"] {
+            margin-right: 0.5rem;
+            margin: 0;
+        }
+
+        .month-item label {
+            font-size: 0.8rem;
+            color: #4a5568;
+            cursor: pointer;
+            margin: 0;
+            margin-left: 0.4rem;
+        }
+
+        .month-item input[type="checkbox"]:checked + label {
+            color: #3182ce;
+            font-weight: 500;
+        }
+
+        .form-actions {
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: #3182ce;
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary:hover {
+            background: #2c5aa0;
+            transform: translateY(-1px);
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        .data-table th {
+            background: #f8f9fa;
+            color: #4a5568;
+            font-weight: 600;
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 2px solid #e2e8f0;
+            font-size: 0.8rem;
+        }
+
+        .data-table td {
+            padding: 0.75rem;
+            border-bottom: 1px solid #f1f5f9;
+            color: #2d3748;
+        }
+
+        .data-table tr:hover {
+            background-color: #f8fafc;
+        }
+
+        .percentage-cell .positive {
+            color: #38a169;
+            font-weight: 600;
+        }
+
+        .percentage-cell .negative {
+            color: #e53e3e;
+            font-weight: 600;
+        }
+
+        .months-cell {
+            font-size: 0.8rem;
+            color: #4a5568;
+        }
+
+        .btn-delete {
+            color: #e53e3e;
+            font-size: 0.8rem;
+            text-decoration: none;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-delete:hover {
+            background: #fed7d7;
+            color: #c53030;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: #a0aec0;
+        }
+
+        .empty-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .months-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+    </style>
+</div>

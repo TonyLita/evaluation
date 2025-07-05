@@ -10,3 +10,17 @@ MariaDB [_7c1adeb4e28c67ac]> SELECT * FROM `tabSeries` WHERE name LIKE 'HR-EMP-%
 MariaDB [_7c1adeb4e28c67ac]> UPDATE `tabSeries` SET current=0 WHERE name='HR-EMP-';
 Query OK, 1 row affected (0.004 sec)
 Rows matched: 1  Changed: 1  Warnings: 0
+
+
+mmorona table accès base ho an' ny pourcentage: 
+CREATE TABLE IF NOT EXISTS salary_percentage (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    description VARCHAR(255) NOT NULL,
+    percentage DECIMAL(10,2) NOT NULL,
+    annee INT NOT NULL,
+    mois_affectes TEXT NOT NULL,
+    mois_display VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_annee (annee),
+    INDEX idx_created_at (created_at)
+);
